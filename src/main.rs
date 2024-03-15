@@ -1,10 +1,12 @@
 mod args;
 
-use std::{thread::Result, process::Output};
+use std::{process::Output, thread::Result};
 
 use args::Args;
-use image::{imageops::FilterType::Triangle, io::Reader, DynamicImage, GenericImage, GenericImageView, ImageFormat.};
-
+use image::{
+    imageops::FilterType::Triangle, io::Reader, DynamicImage, GenericImage, GenericImageView,
+    ImageFormat,
+};
 
 fn main() -> Result<(), ImageDataErrors> {
     let args = Args::new();
@@ -68,18 +70,21 @@ impl FlytendeBilde {
     }
 }
 
-fn finn_bilde_fra_mappe (path: String) -> (DynamicImage, ImageFormat) {
+fn finn_bilde_fra_mappe(path: String) -> (DynamicImage, ImageFormat) {
     let bilde_leser = Reader::open(path).unwrap();
     let bilde_format = bilde_leser.format().unwrap();
     let bilde = bilde_leser.decode().unwrap();
     (bilde, bilde_format)
 }
 
-fn standarisert_størrelse(bilde_1: DynamicImage, bilde_2: DynamicImage) -> (DynamicImage, DynamicImage) {
+fn standarisert_størrelse(
+    bilde_1: DynamicImage,
+    bilde_2: DynamicImage,
+) -> (DynamicImage, DynamicImage) {
     let (høyde, bredde) = få_minste_dimensjoner(bilde_1.dimensions(), bilde_2.dimensions());
     println!("Bredde: {}, Høyde: {}\n", bredde, høyde);
     if bilde_2.dimensions() == (bredde, høyde) {
-        (bilde_1.resize_exact(bredde, høyde, Triangle), bilde_2)    
+        (bilde_1.resize_exact(bredde, høyde, Triangle), bilde_2)
     } else {
         (bilde_1, bilde_2.resize_exact(bredde, høyde, Triangle))
     }
@@ -88,7 +93,7 @@ fn standarisert_størrelse(bilde_1: DynamicImage, bilde_2: DynamicImage) -> (Dyn
 fn få_minste_dimensjoner(dim_1: (u32, u32), dim_2: (u32, u32)) -> (u32, u32) {
     let pix_1 = dim_1.0 * dim_1.1;
     let pix_2 = dim_2.0 * dim_2.1;
-    return if pix_1 < pix_2 {dim_1} else {dim_2};
+    return if pix_1 < pix_2 { dim_1 } else { dim_2 };
 }
 
 fn kombiner_bilder(bilde_1: DynamicImage, bilde_2: DynamicImage) -> Vec<u8> {
