@@ -1,11 +1,8 @@
 mod args;
 
-use std::{process::Output, thread::Result};
-
 use args::Args;
 use image::{
-    imageops::FilterType::Triangle, io::Reader, DynamicImage, GenericImage, GenericImageView,
-    ImageFormat,
+    imageops::FilterType::Triangle, io::Reader, DynamicImage, GenericImageView, ImageFormat,
 };
 
 fn main() -> Result<(), BildeDataError> {
@@ -20,17 +17,17 @@ fn main() -> Result<(), BildeDataError> {
     }
 
     let (bilde_1, bilde_2) = standarisert_størrelse(bilde_1, bilde_2);
-    let mut output = FlytendeBilde::new(bilde_1.bredde(), bilde_1.høyde(), args.output);
+    let mut output = FlytendeBilde::new(bilde_1.width(), bilde_1.height(), args.output);
 
     let kombinere_data = kombiner_bilder(bilde_1, bilde_2);
 
     output.sett_data(kombinere_data)?;
 
     image::save_buffer_with_format(
-        output.navn,
+        output.name,
         &output.data,
-        output.bredde,
-        output.høyde,
+        output.width,
+        output.height,
         image::ColorType::Rgb8,
         bilde_1_format,
     )
@@ -38,27 +35,28 @@ fn main() -> Result<(), BildeDataError> {
     Ok(())
 }
 
+#[derive(Debug)]
 enum BildeDataError {
     BufferForLiten,
     DiffBildeFormat,
 }
 
 struct FlytendeBilde {
-    bredde: u32,
-    høyde: u32,
+    width: u32,
+    height: u32,
     data: Vec<u8>,
-    navn: String,
+    name: String,
 }
 
 impl FlytendeBilde {
-    fn new(bredde: u32, høyde: u32, navn: String) -> Self {
+    fn new(width: u32, height: u32, name: String) -> Self {
         let buffer_kapasitet = 3_655_744;
         let buffer: Vec<u8> = Vec::with_capacity(buffer_kapasitet);
         FlytendeBilde {
-            bredde,
-            høyde,
+            width,
+            height,
             data: buffer,
-            navn,
+            name,
         }
     }
     fn sett_data(&mut self, data: Vec<u8>) -> Result<(), BildeDataError> {
@@ -81,12 +79,12 @@ fn standarisert_størrelse(
     bilde_1: DynamicImage,
     bilde_2: DynamicImage,
 ) -> (DynamicImage, DynamicImage) {
-    let (høyde, bredde) = få_minste_dimensjoner(bilde_1.dimensions(), bilde_2.dimensions());
-    println!("Bredde: {}, Høyde: {}\n", bredde, høyde);
-    if bilde_2.dimensions() == (bredde, høyde) {
-        (bilde_1.resize_exact(bredde, høyde, Triangle), bilde_2)
+    let (height, width) = få_minste_dimensjoner(bilde_1.dimensions(), bilde_2.dimensions());
+    println!("Bredde: {}, Høyde: {}\n", width, height);
+    if bilde_2.dimensions() == (width, height) {
+        (bilde_1.resize_exact(width, height, Triangle), bilde_2)
     } else {
-        (bilde_1, bilde_2.resize_exact(bredde, høyde, Triangle))
+        (bilde_1, bilde_2.resize_exact(width, height, Triangle))
     }
 }
 
