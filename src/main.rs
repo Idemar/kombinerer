@@ -8,7 +8,7 @@ use image::{
     ImageFormat,
 };
 
-fn main() -> Result<(), ImageDataErrors> {
+fn main() -> Result<(), BildeDataError> {
     let args = Args::new();
     println!("{:?}", args);
 
@@ -16,7 +16,7 @@ fn main() -> Result<(), ImageDataErrors> {
     let (bilde_2, bilde_2_format) = finn_bilde_fra_mappe(args.bilde_2);
 
     if bilde_1_format != bilde_2_format {
-        return Err(ImageDataErrors::DiffBildeFormat);
+        return Err(BildeDataError::DiffBildeFormat);
     }
 
     let (bilde_1, bilde_2) = standarisert_størrelse(bilde_1, bilde_2);
@@ -38,7 +38,7 @@ fn main() -> Result<(), ImageDataErrors> {
     Ok(())
 }
 
-enum ImageDataErrors {
+enum BildeDataError {
     BufferForLiten,
     DiffBildeFormat,
 }
@@ -61,9 +61,9 @@ impl FlytendeBilde {
             navn,
         }
     }
-    fn sett_data(&mut self, data: Vec<u8>) -> Result<(), ImageDataErrors> {
+    fn sett_data(&mut self, data: Vec<u8>) -> Result<(), BildeDataError> {
         if data.len() > self.data.capacity() {
-            return Err(ImageDataErrors::BufferForLiten);
+            return Err(BildeDataError::BufferForLiten);
         }
         self.data = data;
         Ok(())
